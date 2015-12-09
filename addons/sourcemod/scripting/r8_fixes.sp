@@ -1,6 +1,7 @@
 #pragma semicolon 1
 
 #include <sourcemod>
+#include <sdktools>
 
 public Plugin myinfo = 
 {
@@ -11,38 +12,29 @@ public Plugin myinfo =
 	url = ""
 };
 
-bool g_bCanUseSecondary[MAXPLAYERS + 1] = true;
-
 public void OnPluginStart()
 {
 	HookEvent("bomb_begindefuse", Event_BombBeginDefuse);
 	HookEvent("bomb_abortdefuse", Event_BombEndDefuse);
 	HookEvent("bomb_defused", Event_BombEndDefuse);
-	HookEvent("round_start", Event_RoundStart);
 }
 
 public Action Event_BombBeginDefuse(Event event, const char[] name, bool dontBroadcast)
 {
-	g_bCanUseSecondary[GetClientOfUserId(event.GetInt("userid"))] = false;
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	int weapon = GetPlayerWeaponSlot(client, 1);
+	if(weapon > -1)
+	{
+		SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 100.0);
+	}
 }
 
 public Action Event_BombEndDefuse(Event event, const char[] name, bool dontBroadcast)
 {
-	g_bCanUseSecondary[GetClientOfUserId(event.GetInt("userid"))] = true;
-}
-
-public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
-{
-	for (int i = 1; i < MaxClients; i++)
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	int weapon = GetPlayerWeaponSlot(client, 1);
+	if(weapon > -1)
 	{
-		g_bCanUseSecondary[i] = true;
-	}
-}
-
-public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
-{
-	if(!g_bCanUseSecondary[client] && (buttons & IN_ATTACK2))
-	{
-		buttons &= ~IN_ATTACK2;
+		SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 1.0);
 	}
 }
