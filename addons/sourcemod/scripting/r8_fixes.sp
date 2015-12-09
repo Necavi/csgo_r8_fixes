@@ -24,13 +24,11 @@ public void OnPluginStart()
 public Action Event_BombBeginDefuse(Event event, const char[] name, bool dontBroadcast)
 {
 	g_bCanUseSecondary[GetClientOfUserId(event.GetInt("userid"))] = false;
-	PrintToServer("Player %N can no longer use secondary fire.", GetClientOfUserId(event.GetInt("userid")));
 }
 
 public Action Event_BombEndDefuse(Event event, const char[] name, bool dontBroadcast)
 {
 	g_bCanUseSecondary[GetClientOfUserId(event.GetInt("userid"))] = true;
-	PrintToServer("Player %N can again use secondary fire.", GetClientOfUserId(event.GetInt("userid")));
 }
 
 public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
